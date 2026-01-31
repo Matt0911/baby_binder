@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ChildSettingsPage extends ConsumerWidget {
   static const String routeName = '/child-settings-page';
 
+  const ChildSettingsPage({super.key});
+
   @override
   Widget build(context, ref) {
     final activeChild = ref.watch(activeChildProvider);
@@ -72,11 +74,11 @@ class ChildSettingsPage extends ConsumerWidget {
 
 class SettingRow extends StatelessWidget {
   const SettingRow({
-    Key? key,
+    super.key,
     required this.fontSize,
     required this.settingName,
     required this.settingValue,
-  }) : super(key: key);
+  });
 
   final double fontSize;
   final String settingName;

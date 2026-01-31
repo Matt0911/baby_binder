@@ -5,6 +5,7 @@ import 'package:baby_binder/providers/user_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:hive/hive.dart';
 
@@ -12,8 +13,8 @@ final FirebaseFirestore firestore = FirebaseFirestore.instance;
 final firebase_storage.FirebaseStorage storage =
     firebase_storage.FirebaseStorage.instance;
 
-final childrenDataProvider =
-    ChangeNotifierProvider((ref) => ChildrenData(ref.watch(userDataProvider)));
+final childrenDataProvider = ChangeNotifierProvider<ChildrenData>(
+    (ref) => ChildrenData(ref.watch(userDataProvider)));
 
 class ChildrenData extends ChangeNotifier {
   ChildrenData(this.userData) {
@@ -23,7 +24,7 @@ class ChildrenData extends ChangeNotifier {
 
   UserData userData;
 
-  _init() async {
+  Future<void> _init() async {
     prefs = await Hive.openBox('childrenData');
 
     if (userData.isLoaded && userData.children.isNotEmpty) {
@@ -63,7 +64,7 @@ class ChildrenData extends ChangeNotifier {
     }
   }
 
-  setActiveChild({required String id}) async {
+  Future<void> setActiveChild({required String id}) async {
     if (activeChildId == null || id != activeChildId) {
       activeChildId = id;
       prefs.put('activeChild', id);

@@ -2,10 +2,12 @@ import 'package:baby_binder/providers/children_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-final laborTrackerDataProvider = ChangeNotifierProvider((ref) {
+final laborTrackerDataProvider =
+    ChangeNotifierProvider<LaborTrackerData>((ref) {
   final activeChild = ref.watch(activeChildProvider);
   return LaborTrackerData(activeChild?.document);
 });
@@ -17,12 +19,12 @@ class LaborTrackerData extends ChangeNotifier {
       _document!.collection('labor').orderBy('time').snapshots().listen(
         (snapshot) {
           for (var docChange in snapshot.docChanges) {
-              if (docChange.type == DocumentChangeType.added) {
-                _addContraction(docChange.doc.id, docChange.doc.data() ?? {});
-              } else if (docChange.type == DocumentChangeType.removed) {
-                _removeContraction(docChange.doc.id);
-              }
+            if (docChange.type == DocumentChangeType.added) {
+              _addContraction(docChange.doc.id, docChange.doc.data() ?? {});
+            } else if (docChange.type == DocumentChangeType.removed) {
+              _removeContraction(docChange.doc.id);
             }
+          }
           notifyListeners();
         },
       );
@@ -76,8 +78,8 @@ class Contraction {
 final oneHourLaborDataProvider = Provider((ref) {
   final contractions = ref.watch(laborTrackerDataProvider).contractions;
   List<Contraction> oneHourContractions = contractions
-      .where(
-          (c) => c.start.isAfter(DateTime.now().subtract(const Duration(hours: 1))))
+      .where((c) =>
+          c.start.isAfter(DateTime.now().subtract(const Duration(hours: 1))))
       .toList();
   int durationTot = 0, intervalTot = 0, restTot = 0;
   int len = oneHourContractions.length;

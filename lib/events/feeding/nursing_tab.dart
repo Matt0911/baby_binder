@@ -6,11 +6,11 @@ import 'feeding_event.dart';
 
 class NursingSideCard extends StatelessWidget {
   const NursingSideCard({
-    Key? key,
+    super.key,
     required this.text,
     required this.time,
     required this.updateValue,
-  }) : super(key: key);
+  });
   final String text;
   final int time;
   final Function(int) updateValue;
@@ -62,10 +62,10 @@ class NursingSideCard extends StatelessWidget {
 
 class NursingTab extends StatelessWidget {
   const NursingTab({
-    Key? key,
+    super.key,
     required this.event,
     required this.updateEventData,
-  }) : super(key: key);
+  });
   final FeedingEvent event;
   final Function(Function()) updateEventData;
 

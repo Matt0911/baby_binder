@@ -146,10 +146,10 @@ class FeedingEvent extends StoryEvent {
 class FeedingDialogContent extends StatefulWidget {
   const FeedingDialogContent({
     // TODO: fix styling now that content is in expanded
-    Key? key,
+    super.key,
     required this.event,
     required this.updateEventData,
-  }) : super(key: key);
+  });
 
   final FeedingEvent event;
   final Function(Function()) updateEventData;
@@ -206,7 +206,8 @@ class _FeedingDialogContentState extends State<FeedingDialogContent>
             indicatorColor: Colors.teal.shade200,
             labelColor: Colors.teal,
             labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+            unselectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.normal),
           ),
           Expanded(
             child: TabBarView(

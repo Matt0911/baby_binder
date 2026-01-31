@@ -11,12 +11,12 @@ enum EventDialogResult {
 
 class EventDialog extends StatefulWidget {
   const EventDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.content,
     this.isEdit = false,
     required this.event,
-  }) : super(key: key);
+  });
 
   final String title;
   final Widget Function(Function(Function())) content;

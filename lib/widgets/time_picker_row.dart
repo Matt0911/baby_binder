@@ -5,12 +5,12 @@ final DateFormat _timeFormatter = DateFormat('hh:mm a');
 
 class TimePickerRow extends StatelessWidget {
   const TimePickerRow({
-    Key? key,
+    super.key,
     this.fontSize = 18,
     required this.settingName,
     required this.settingValue,
     required this.updateValue,
-  }) : super(key: key);
+  });
 
   final double fontSize;
   final String settingName;

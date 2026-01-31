@@ -6,11 +6,11 @@ import 'package:baby_binder/events/story_events.dart';
 import 'package:baby_binder/providers/children_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-final storyDataProvider = ChangeNotifierProvider((ref) {
+final storyDataProvider = ChangeNotifierProvider<StoryData>((ref) {
   final activeChild = ref.watch(activeChildProvider);
   return StoryData(activeChild?.document);
 });

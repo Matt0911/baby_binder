@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 
 class ChildAvatar extends StatelessWidget {
   const ChildAvatar({
-    Key? key,
+    super.key,
     required this.childImage,
     required this.childName,
     this.maxRadius = 80,
     this.showName = true,
     this.updateName,
-  }) : super(key: key);
+  });
 
   final String childImage;
   final String childName;
@@ -44,10 +44,10 @@ class ChildAvatar extends StatelessWidget {
 
 class NameDisplay extends StatelessWidget {
   const NameDisplay({
-    Key? key,
+    super.key,
     required this.childName,
     required this.updateName,
-  }) : super(key: key);
+  });
 
   final String childName;
   final Function(String)? updateName;

@@ -11,8 +11,7 @@ const double maxML = 100;
 
 class BottleTab extends StatelessWidget {
   const BottleTab(
-      {Key? key, required this.event, required this.updateEventData})
-      : super(key: key);
+      {super.key, required this.event, required this.updateEventData});
   final FeedingEvent event;
   final Function(Function()) updateEventData;
 

@@ -14,7 +14,7 @@ class HiveDB {
     return component;
   }
 
-  _init() async {
+  Future<void> _init() async {
     _generalBox = await Hive.openBox('general');
   }
 

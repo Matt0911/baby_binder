@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'child_avatar.dart';
 
 class ChildCard extends ConsumerWidget {
-  const ChildCard({Key? key, required this.childData}) : super(key: key);
+  const ChildCard({super.key, required this.childData});
   final Child childData;
 
   @override

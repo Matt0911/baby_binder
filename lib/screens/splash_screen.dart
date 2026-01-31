@@ -4,10 +4,9 @@ import '../constants.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen(
-      {Key? key,
+      {super.key,
       required this.onFinished,
-      required this.splashMaxDurationInSec})
-      : super(key: key);
+      required this.splashMaxDurationInSec});
   final Function onFinished;
   final int splashMaxDurationInSec;
 

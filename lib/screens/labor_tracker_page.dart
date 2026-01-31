@@ -6,7 +6,7 @@ import 'package:baby_binder/widgets/baby_binder_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 String convertSecsToString(int valueInSecs) {
   final mins = valueInSecs ~/ 60;
@@ -15,31 +15,36 @@ String convertSecsToString(int valueInSecs) {
 }
 
 class OneHourAveragesDisplay extends ConsumerWidget {
-  const OneHourAveragesDisplay({Key? key}) : super(key: key);
+  const OneHourAveragesDisplay({super.key});
 
   @override
   Widget build(context, ref) {
     final oneHourData = ref.watch(oneHourLaborDataProvider);
     return Column(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 10),
         Text('Last Hour Averages',
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
-              fontSize: 30,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             )),
         const SizedBox(height: 10),
-        Expanded(
+        SizedBox(
+          height: 100,
           child: Row(
             children: [
               const SizedBox(width: 10),
-              OneHourAverage(
-                  title: 'Duration', valueInSec: oneHourData.durationSeconds),
-              const SizedBox(width: 20),
-              OneHourAverage(
-                  title: 'Interval', valueInSec: oneHourData.intervalSeconds),
+              Expanded(
+                child: OneHourAverage(
+                    title: 'Duration', valueInSec: oneHourData.durationSeconds),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OneHourAverage(
+                    title: 'Interval', valueInSec: oneHourData.intervalSeconds),
+              ),
               const SizedBox(width: 10),
             ],
           ),
@@ -51,10 +56,10 @@ class OneHourAveragesDisplay extends ConsumerWidget {
 
 class OneHourAverage extends StatelessWidget {
   const OneHourAverage({
-    Key? key,
+    super.key,
     required this.title,
     required this.valueInSec,
-  }) : super(key: key);
+  });
 
   final String title;
   final int valueInSec;
@@ -62,18 +67,32 @@ class OneHourAverage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String value = valueInSec > 0 ? convertSecsToString(valueInSec) : '--';
-    return Expanded(
-      child: Card(
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              value,
-              style: kMedNumberTextStyle,
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Text(
+                  value,
+                  style: kMedNumberTextStyle,
+                ),
+              ),
             ),
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            const SizedBox(height: 6),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ],
         ),
@@ -85,8 +104,7 @@ class OneHourAverage extends StatelessWidget {
 final DateFormat _formatter = DateFormat('EEE MMM d hh:mma');
 
 class DataRow extends StatelessWidget {
-  const DataRow({Key? key, required this.items, this.isBold = false})
-      : super(key: key);
+  const DataRow({super.key, required this.items, this.isBold = false});
   final List<String?> items;
   final bool isBold;
 
@@ -117,8 +135,7 @@ class DataRow extends StatelessWidget {
 
 class ContractionRow extends StatelessWidget {
   const ContractionRow(
-      {Key? key, required this.contraction, this.prevContraction})
-      : super(key: key);
+      {super.key, required this.contraction, this.prevContraction});
   final Contraction contraction;
   final Contraction? prevContraction;
 
@@ -138,7 +155,7 @@ class ContractionRow extends StatelessWidget {
 }
 
 class TitleRow extends StatelessWidget {
-  const TitleRow({Key? key}) : super(key: key);
+  const TitleRow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -148,8 +165,7 @@ class TitleRow extends StatelessWidget {
 
 class ContractionTimerButton extends StatefulWidget {
   const ContractionTimerButton(
-      {Key? key, required this.stopwatch, required this.isRunning})
-      : super(key: key);
+      {super.key, required this.stopwatch, required this.isRunning});
   final Stopwatch stopwatch;
   final bool isRunning;
 
@@ -196,7 +212,7 @@ class _ContractionTimerButtonState extends State<ContractionTimerButton> {
 class LaborTrackerPage extends ConsumerStatefulWidget {
   static const routeName = '/labor-tracker';
 
-  LaborTrackerPage({Key? key}) : super(key: key);
+  LaborTrackerPage({super.key});
 
   final Stopwatch stopwatch = Stopwatch();
 
@@ -210,65 +226,90 @@ class LaborTrackerPageState extends ConsumerState<LaborTrackerPage> {
   @override
   Widget build(BuildContext context) {
     final laborData = ref.watch(laborTrackerDataProvider);
+    const double bottomButtonHeight = 64.0;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Labor Tracker')),
       drawer: const BabyBinderDrawer(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Stack(
         children: [
-          // Expanded(
-          //     flex: 2,
-          //     child: Container(
-          //       color: Colors.blue,
-          //     )),
-          const Expanded(
-            flex: 1,
-            child: OneHourAveragesDisplay(),
-          ),
-          const TitleRow(),
-          Expanded(
-            flex: 4,
-            child: ListView.builder(
-              itemCount: laborData.contractions.length,
-              itemBuilder: (context, i) => ContractionRow(
+          // Main scrollable content (header + list)
+          ListView.builder(
+            padding: EdgeInsets.only(
+              left: 0,
+              right: 0,
+              top: 8.0,
+              bottom: bottomButtonHeight +
+                  MediaQuery.of(context).padding.bottom +
+                  16.0,
+            ),
+            itemCount: laborData.contractions.length + 2,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                  child: OneHourAveragesDisplay(),
+                );
+              }
+              if (index == 1) {
+                return const TitleRow();
+              }
+              final i = index - 2;
+              return ContractionRow(
                 contraction: laborData.contractions[i],
                 prevContraction: i + 1 < laborData.contractions.length
                     ? laborData.contractions[i + 1]
                     : null,
+              );
+            },
+          ),
+
+          // Bottom overlayed button
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: SizedBox(
+                  height: bottomButtonHeight,
+                  child: RawMaterialButton(
+                    onPressed: () {
+                      setState(() {
+                        if (currentContraction == null) {
+                          currentContraction = Contraction();
+                          widget.stopwatch.start();
+                          WakelockPlus.enable();
+                        } else {
+                          widget.stopwatch.stop();
+                          WakelockPlus.disable();
+                          currentContraction!.duration =
+                              widget.stopwatch.elapsed;
+                          laborData.addNewContraction(currentContraction!);
+                          widget.stopwatch.reset();
+                          currentContraction = null;
+                        }
+                      });
+                    },
+                    fillColor:
+                        currentContraction == null ? Colors.green : Colors.red,
+                    constraints: const BoxConstraints(minHeight: 48),
+                    textStyle: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                    child: ContractionTimerButton(
+                      stopwatch: widget.stopwatch,
+                      isRunning: currentContraction != null,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RawMaterialButton(
-              onPressed: () {
-                setState(() {
-                  if (currentContraction == null) {
-                    currentContraction = Contraction();
-                    widget.stopwatch.start();
-                    Wakelock.enable();
-                  } else {
-                    widget.stopwatch.stop();
-                    Wakelock.disable();
-                    currentContraction!.duration = widget.stopwatch.elapsed;
-                    laborData.addNewContraction(currentContraction!);
-                    widget.stopwatch.reset();
-                    currentContraction = null;
-                  }
-                });
-              },
-              fillColor: currentContraction == null ? Colors.green : Colors.red,
-              constraints: const BoxConstraints(minHeight: 60),
-              textStyle: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
-              child: ContractionTimerButton(
-                stopwatch: widget.stopwatch,
-                isRunning: currentContraction != null,
-              ),
-            ),
-          )
         ],
       ),
     );

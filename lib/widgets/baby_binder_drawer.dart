@@ -11,8 +11,8 @@ import 'child_avatar.dart';
 
 class BabyBinderDrawer extends ConsumerWidget {
   const BabyBinderDrawer({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(context, ref) {

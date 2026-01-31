@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
-final userDataProvider = ChangeNotifierProvider((ref) => UserData());
+final userDataProvider = ChangeNotifierProvider<UserData>((ref) => UserData());
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 class UserData extends ChangeNotifier {
@@ -30,7 +30,7 @@ class UserData extends ChangeNotifier {
   String? email;
   List<String> children = [];
 
-  _initializeData(User user) {
+  void _initializeData(User user) {
     firestore.collection('users').doc(user.uid).snapshots().listen((event) {
       final data = event.data() ?? {};
       name = data['name'];
@@ -43,7 +43,7 @@ class UserData extends ChangeNotifier {
     });
   }
 
-  _resetData() {
+  void _resetData() {
     name = null;
     uid = null;
     email = null;

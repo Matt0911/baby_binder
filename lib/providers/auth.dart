@@ -22,11 +22,12 @@ const kInputDecoration = InputDecoration(
 );
 
 final kButtonStyle = ButtonStyle(
-  backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF4DB6AC)),
+  backgroundColor: WidgetStateProperty.all<Color>(const Color(0xFF4DB6AC)),
 );
 
 class Authentication extends StatelessWidget {
   const Authentication({
+    super.key,
     required this.loginState,
     required this.email,
     required this.startLoginFlow,
@@ -181,7 +182,7 @@ class Authentication extends StatelessWidget {
 }
 
 class EmailForm extends StatefulWidget {
-  const EmailForm({required this.callback});
+  const EmailForm({super.key, required this.callback});
   final void Function(String email) callback;
   @override
   _EmailFormState createState() => _EmailFormState();
@@ -236,6 +237,7 @@ class _EmailFormState extends State<EmailForm> {
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({
+    super.key,
     required this.registerAccount,
     required this.cancel,
     required this.email,
@@ -383,6 +385,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
 class PasswordForm extends StatefulWidget {
   const PasswordForm({
+    super.key,
     required this.login,
     required this.email,
   });

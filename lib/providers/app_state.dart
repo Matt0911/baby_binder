@@ -1,15 +1,19 @@
 import 'package:baby_binder/providers/hive_provider.dart';
 import 'package:baby_binder/screens/child_selection_page.dart';
+import 'package:baby_binder/screens/child_settings_page.dart';
+import 'package:baby_binder/screens/child_story_page.dart';
+import 'package:baby_binder/screens/labor_tracker_page.dart';
 import 'package:baby_binder/screens/login_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
 import 'auth.dart';
 
-final appStateProvider = ChangeNotifierProvider((ref) {
+final appStateProvider = ChangeNotifierProvider<AppState>((ref) {
   final hiveBox = ref.watch(hiveProvider).asData?.value;
   return AppState(hiveBox);
 });
@@ -22,15 +26,29 @@ class AppState extends ChangeNotifier {
   HiveDB? hive;
 
   BuildContext? context;
+
   Future<void> init() async {
-    FirebaseAuth.instance.userChanges().listen((user) {
-      if (user != null) {
-        _loginState = ApplicationLoginState.loggedIn;
-      } else {
-        _loginState = ApplicationLoginState.loggedOut;
-      }
-      notifyListeners();
-    });
+    try {
+      // Initialize Firebase Auth listener
+      _initializeFirebaseAuth();
+    } catch (e) {
+      print('Error in AppState.init: $e');
+    }
+  }
+
+  void _initializeFirebaseAuth() {
+    try {
+      FirebaseAuth.instance.userChanges().listen((user) {
+        if (user != null) {
+          _loginState = ApplicationLoginState.loggedIn;
+        } else {
+          _loginState = ApplicationLoginState.loggedOut;
+        }
+        notifyListeners();
+      });
+    } catch (e) {
+      print('Error setting up FirebaseAuth listener: $e');
+    }
   }
 
   void Function() loginSuccessCallback = () {};
@@ -42,7 +60,34 @@ class AppState extends ChangeNotifier {
 
   void navigateToPage(BuildContext context, String route) {
     hive?.updateLastPage(route);
-    Navigator.of(context).pushNamed(route);
+
+    // Map route names to their corresponding widgets
+    late Widget targetWidget;
+
+    switch (route) {
+      case ChildSelectionPage.routeName:
+        targetWidget = const ChildSelectionPage();
+        break;
+      case ChildStoryPage.routeName:
+        targetWidget = const ChildStoryPage();
+        break;
+      case ChildSettingsPage.routeName:
+        targetWidget = const ChildSettingsPage();
+        break;
+      case LaborTrackerPage.routeName:
+        targetWidget = LaborTrackerPage();
+        break;
+      case LoginScreen.routeName:
+        targetWidget = const LoginScreen();
+        break;
+      default:
+        // Fallback to child selection
+        targetWidget = const ChildSelectionPage();
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => targetWidget),
+    );
   }
 
   void startLoginFlow() {

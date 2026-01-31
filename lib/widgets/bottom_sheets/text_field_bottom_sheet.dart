@@ -8,10 +8,10 @@ class TextFieldEditResults {
 
 class TextFieldEditor extends StatefulWidget {
   const TextFieldEditor({
-    Key? key,
+    super.key,
     required this.name,
     this.initialValue,
-  }) : super(key: key);
+  });
 
   final String name;
   final String? initialValue;

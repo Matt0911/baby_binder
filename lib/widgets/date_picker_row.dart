@@ -5,12 +5,12 @@ final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy');
 
 class DatePickerRow extends StatelessWidget {
   const DatePickerRow({
-    Key? key,
+    super.key,
     this.fontSize = 18,
     required this.settingName,
     required this.settingValue,
     required this.updateValue,
-  }) : super(key: key);
+  });
 
   final double fontSize;
   final String settingName;
