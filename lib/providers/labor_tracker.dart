@@ -23,6 +23,8 @@ class LaborTrackerData extends ChangeNotifier {
               _addContraction(docChange.doc.id, docChange.doc.data() ?? {});
             } else if (docChange.type == DocumentChangeType.removed) {
               _removeContraction(docChange.doc.id);
+            } else if (docChange.type == DocumentChangeType.modified) {
+              _updateContraction(docChange.doc.id, docChange.doc.data() ?? {});
             }
           }
           notifyListeners();
@@ -36,6 +38,13 @@ class LaborTrackerData extends ChangeNotifier {
 
   void _removeContraction(String id) {
     contractions.removeWhere((c) => c.id == id);
+  }
+
+  void _updateContraction(String id, Map<String, dynamic> data) {
+    final index = contractions.indexWhere((c) => c.id == id);
+    if (index != -1) {
+      contractions[index] = Contraction.fromData(id, data);
+    }
   }
 
   void _addContraction(String id, Map<String, dynamic> data) {
@@ -52,10 +61,22 @@ class LaborTrackerData extends ChangeNotifier {
   void addNewContraction(Contraction c) async {
     _createContraction(c);
   }
+
+  void updateContraction(Contraction c) async {
+    if (_document != null && c.id != null) {
+      _document!.collection('labor').doc(c.id).update(c.convertToMap());
+    }
+  }
+
+  void deleteContraction(Contraction c) async {
+    if (_document != null && c.id != null) {
+      _document!.collection('labor').doc(c.id).delete();
+    }
+  }
 }
 
 class Contraction {
-  Contraction({DateTime? start}) {
+  Contraction({DateTime? start, this.duration, this.id}) {
     _start = start ?? DateTime.now();
   }
 
@@ -73,6 +94,28 @@ class Contraction {
         'time': start,
         'durationSeconds': duration!.inSeconds,
       };
+
+  Contraction copyWith({
+    DateTime? start,
+    Duration? duration,
+  }) {
+    final newC = Contraction(
+      start: start ?? this.start,
+      duration: duration ?? this.duration,
+    );
+    newC.id = id;
+    return newC;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Contraction &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 final oneHourLaborDataProvider = Provider((ref) {
