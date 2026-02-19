@@ -18,6 +18,13 @@ class ChildStoryPage extends ConsumerWidget {
     Child? activeChild = ref.watch(activeChildProvider);
     if (activeChild == null) return const CircularProgressIndicator();
 
+    if (activeChild.isBorn == false) {
+      // We can't navigate directly in the build method, so we schedule it for after the build.
+      Future.microtask(
+          () => Navigator.of(context).pushReplacementNamed(LaborTrackerPage.routeName));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     // Apply system nav bar color explicitly to ensure Android uses it.
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.teal[300],

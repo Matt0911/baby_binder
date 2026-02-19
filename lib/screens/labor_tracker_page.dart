@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:baby_binder/constants.dart';
 import 'package:baby_binder/providers/labor_tracker.dart';
 import 'package:baby_binder/widgets/baby_binder_drawer.dart';
+import 'package:baby_binder/providers/children_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -258,6 +259,8 @@ class LaborTrackerPageState extends ConsumerState<LaborTrackerPage> {
   @override
   Widget build(BuildContext context) {
     final laborData = ref.watch(laborTrackerDataProvider);
+    final activeChild = ref.watch(activeChildProvider);
+    final isReadOnly = activeChild?.isBorn ?? false;
     const double bottomButtonHeight = 64.0;
 
     return Scaffold(
@@ -293,96 +296,106 @@ class LaborTrackerPageState extends ConsumerState<LaborTrackerPage> {
                 prevContraction: i + 1 < laborData.contractions.length
                     ? laborData.contractions[i + 1]
                     : null,
-                onLongPress: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return SafeArea(
-                        child: Wrap(
-                          children: <Widget>[
-                            ListTile(
-                              leading: const Icon(Icons.edit),
-                              title: const Text('Edit'),
-                              onTap: () async {
-                                Navigator.pop(context);
-                                final updatedContraction =
-                                    await showDialog<Contraction>(
-                                  context: context,
-                                  builder: (context) => EditContractionDialog(
-                                      contraction: contraction),
-                                );
-                                if (updatedContraction != null) {
-                                  ref
-                                      .read(laborTrackerDataProvider)
-                                      .updateContraction(updatedContraction);
-                                }
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.delete),
-                              title: const Text('Delete'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                ref
-                                    .read(laborTrackerDataProvider)
-                                    .deleteContraction(contraction);
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
+                onLongPress: isReadOnly
+                    ? null
+                    : () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return SafeArea(
+                              child: Wrap(
+                                children: <Widget>[
+                                  ListTile(
+                                    leading: const Icon(Icons.edit),
+                                    title: const Text('Edit'),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      final updatedContraction =
+                                          await showDialog<Contraction>(
+                                        context: context,
+                                        builder: (context) =>
+                                            EditContractionDialog(
+                                                contraction: contraction),
+                                      );
+                                      if (updatedContraction != null) {
+                                        ref
+                                            .read(laborTrackerDataProvider)
+                                            .updateContraction(
+                                                updatedContraction);
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.delete),
+                                    title: const Text('Delete'),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      ref
+                                          .read(laborTrackerDataProvider)
+                                          .deleteContraction(contraction);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
               );
             },
           ),
 
           // Bottom overlayed button
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 8.0),
-                  child: SizedBox(
-                    height: bottomButtonHeight,
-                    child: RawMaterialButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0)),
-                      onPressed: () {
-                        setState(() {
-                          if (currentContraction == null) {
-                            currentContraction = Contraction();
-                            widget.stopwatch.start();
-                            WakelockPlus.enable();
-                          } else {
-                            widget.stopwatch.stop();
-                            WakelockPlus.disable();
-                            currentContraction!.duration =
-                                widget.stopwatch.elapsed;
-                            laborData.addNewContraction(currentContraction!);
-                            widget.stopwatch.reset();
-                            currentContraction = null;
-                          }
-                        });
-                      },
-                      fillColor: currentContraction == null
-                          ? Colors.green
-                          : Colors.red,
-                      constraints: const BoxConstraints(minHeight: 48),
-                      textStyle: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
-                      child: ContractionTimerButton(
-                        stopwatch: widget.stopwatch,
-                        isRunning: currentContraction != null,
+          Visibility(
+            visible: !isReadOnly,
+            child: Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 8.0),
+                    child: SizedBox(
+                      height: bottomButtonHeight,
+                      child: RawMaterialButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0)),
+                        onPressed: isReadOnly
+                            ? null
+                            : () {
+                                setState(() {
+                                  if (currentContraction == null) {
+                                    currentContraction = Contraction();
+                                    widget.stopwatch.start();
+                                    WakelockPlus.enable();
+                                  } else {
+                                    widget.stopwatch.stop();
+                                    WakelockPlus.disable();
+                                    currentContraction!.duration =
+                                        widget.stopwatch.elapsed;
+                                    laborData
+                                        .addNewContraction(currentContraction!);
+                                    widget.stopwatch.reset();
+                                    currentContraction = null;
+                                  }
+                                });
+                              },
+                        fillColor: currentContraction == null
+                            ? Colors.green
+                            : Colors.red,
+                        constraints: const BoxConstraints(minHeight: 48),
+                        textStyle: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                        child: ContractionTimerButton(
+                          stopwatch: widget.stopwatch,
+                          isRunning: currentContraction != null,
+                        ),
                       ),
                     ),
                   ),

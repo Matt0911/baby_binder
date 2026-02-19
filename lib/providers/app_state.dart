@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:baby_binder/providers/hive_provider.dart';
 import 'package:baby_binder/screens/child_selection_page.dart';
 import 'package:baby_binder/screens/child_settings_page.dart';
@@ -15,7 +17,9 @@ import 'auth.dart';
 
 final appStateProvider = ChangeNotifierProvider<AppState>((ref) {
   final hiveBox = ref.watch(hiveProvider).asData?.value;
-  return AppState(hiveBox);
+  final appState = AppState(hiveBox);
+  ref.onDispose(() => appState.dispose());
+  return appState;
 });
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -24,6 +28,7 @@ class AppState extends ChangeNotifier {
     init();
   }
   HiveDB? hive;
+  StreamSubscription? _userChangesSubscription;
 
   BuildContext? context;
 
@@ -38,7 +43,8 @@ class AppState extends ChangeNotifier {
 
   void _initializeFirebaseAuth() {
     try {
-      FirebaseAuth.instance.userChanges().listen((user) {
+      _userChangesSubscription =
+          FirebaseAuth.instance.userChanges().listen((user) {
         if (user != null) {
           _loginState = ApplicationLoginState.loggedIn;
         } else {
@@ -49,6 +55,12 @@ class AppState extends ChangeNotifier {
     } catch (e) {
       print('Error setting up FirebaseAuth listener: $e');
     }
+  }
+
+  @override
+  void dispose() {
+    _userChangesSubscription?.cancel();
+    super.dispose();
   }
 
   void Function() loginSuccessCallback = () {};

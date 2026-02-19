@@ -4,6 +4,7 @@ import 'package:baby_binder/providers/children_data.dart';
 import 'package:baby_binder/screens/child_selection_page.dart';
 import 'package:baby_binder/screens/child_settings_page.dart';
 import 'package:baby_binder/screens/child_story_page.dart';
+import 'package:baby_binder/screens/labor_tracker_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -62,6 +63,16 @@ class BabyBinderDrawer extends ConsumerWidget {
                 : () =>
                     appState.navigateToPage(context, ChildStoryPage.routeName),
           ),
+          if (activeChild != null)
+            ListTile(
+              leading: const Icon(Icons.medical_services_outlined),
+              title: const Text('Labor Tracker'),
+              selected: LaborTrackerPage.routeName == currentRoute,
+              onTap: LaborTrackerPage.routeName == currentRoute
+                  ? () => Navigator.pop(context)
+                  : () => appState.navigateToPage(
+                      context, LaborTrackerPage.routeName),
+            ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Child Settings'),
