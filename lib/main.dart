@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   log('Starting app initialization...');
@@ -88,6 +90,9 @@ class BabyBinder extends ConsumerWidget {
       theme: ThemeData(
         colorScheme: const ColorScheme.light().copyWith(
           primary: Colors.teal,
+        ),
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme,
         ),
       ),
       home: const LandingFlow(),
